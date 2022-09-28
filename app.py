@@ -66,7 +66,7 @@ app.layout = html.Div(
                             id="dev-filter",
                             options=[
                                 {"label": dev, "value": dev}
-                                for dev in np.sort(df['dev'].unique())
+                                for dev in df['dev'].sort_values().unique()
                             ],
                             value="Agatha",
                             clearable=True,
@@ -82,11 +82,11 @@ app.layout = html.Div(
                             id="software-filter",
                             options=[
                                 {"label": software, "value": software}
-                                for software in df['software'].unique()
+                                for software in df['software'].sort_values().unique()
                             ],
                             value="A",
                             clearable=True,
-                            searchable=False,
+                            searchable=True,
                             className="dropdown",
                         ),
                     ],
@@ -95,14 +95,15 @@ app.layout = html.Div(
                 html.Div(
                     children=[
                         html.Div(
-                            children="Data Início", className="menu-title"
+                            children="Data de Término", className="menu-title"
                         ),
                         dcc.DatePickerRange(
                             id="start-date-range",
-                            min_date_allowed=df['start_date'].min().date(),
-                            max_date_allowed=df['start_date'].max().date(),
-                            start_date=df['start_date'].min().date(),
-                            end_date=df['start_date'].max().date(),
+                            min_date_allowed=df['end_date'].min().date(),
+                            max_date_allowed=df['end_date'].max().date(),
+                            start_date=df['end_date'].min().date(),
+                            end_date=df['end_date'].max().date(),
+                            className="dropdown",
                         ),
                     ]
                 ),
@@ -132,7 +133,7 @@ app.layout = html.Div(
 )
 
 @app.callback(
-    [Output("dev-chart", "figure")],
+    Output("dev-chart", "figure"),
     [
         Input("dev-filter", "value"),
         Input("software-filter", "value"),
@@ -145,12 +146,13 @@ def update_charts(dev, software, start_date, end_date):
     mask = (
         (df['dev'] == dev)
         & (df['software'] == software)
-        & (df['start_date'] >= start_date)
-        & (df['start_date'] <= end_date)
+        & (df['end_date'] >= start_date)
+        & (df['end_date'] <= end_date)
     )
     filtered_data = df.loc[mask, :]
-    dev_chart_figure = px.line(filtered_data,
-                                x='start_date', y='returns')
+    dev_chart_figure = px.histogram(filtered_data,
+                                x='end_date')
+    dev_chart_figure.update_layout(bargap=0.2)
     
     # {
     #     "data": [
