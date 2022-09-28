@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 import plotly.express as px
+import plotly.graph_objects as go
 from dash import Dash, html, dcc, Input, Output
 
 # import dataset
@@ -151,8 +152,17 @@ def update_charts(dev, software, start_date, end_date):
     )
     filtered_data = df.loc[mask, :]
     dev_chart_figure = px.histogram(filtered_data,
-                                x='end_date')
-    dev_chart_figure.update_layout(bargap=0.2)
+                                x='end_date', histfunc='avg', 
+                                text_auto=True, template='simple_white')
+    dev_chart_figure.update_layout(bargap=0.2, yaxis_title="# de Tickets",
+                                    xaxis_title="Data de Término",
+                                    title={
+                                        'text': "Quantidade de Tickets Fechados",
+                                        'y': 0.9,
+                                        'x': 0.5,
+                                        'xanchor': 'center',
+                                        'yanchor': 'top'
+                                    })
     
     # {
     #     "data": [
