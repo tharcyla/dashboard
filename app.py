@@ -2,8 +2,9 @@
 import pandas as pd
 import numpy as np
 import plotly.express as px
-import plotly.graph_objects as go
+import datetime
 from dash import Dash, html, dcc, Input, Output
+from math import ceil
 
 # import dataset
 df = pd.read_csv('data/simulated-data-alt.csv', encoding='latin1')
@@ -104,7 +105,7 @@ app.layout = html.Div(
                             max_date_allowed=df['end_date'].max().date(),
                             start_date=df['end_date'].min().date(),
                             end_date=df['end_date'].max().date(),
-                            className="dropdown",
+                            display_format='DD MMM YYYY'
                         ),
                     ]
                 ),
@@ -152,17 +153,22 @@ def update_charts(dev, software, start_date, end_date):
     )
     filtered_data = df.loc[mask, :]
     dev_chart_figure = px.histogram(filtered_data,
-                                x='end_date', histfunc='avg', 
-                                text_auto=True, template='simple_white')
-    dev_chart_figure.update_layout(bargap=0.2, yaxis_title="# de Tickets",
+                                    x='end_date', 
+                                    text_auto=True, 
+                                    template='simple_white', 
+                                    nbins=10)
+    dev_chart_figure.update_layout(bargap=0.1, yaxis_title="# de Tickets",
                                     xaxis_title="Data de Término",
                                     title={
-                                        'text': "Quantidade de Tickets Fechados",
+                                        'text': "Quantidade de Tickets Concluídos",
                                         'y': 0.9,
                                         'x': 0.5,
                                         'xanchor': 'center',
                                         'yanchor': 'top'
-                                    })
+                                    }#,
+                                    #hovermode='x'
+                                    )
+    dev_chart_figure.update_traces(hovertemplate='Data de Término: %{x} <br>Quantidade de Tickets: %{y}')
     
     # {
     #     "data": [
@@ -201,4 +207,4 @@ def update_charts(dev, software, start_date, end_date):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=True, use_reloader=True)
